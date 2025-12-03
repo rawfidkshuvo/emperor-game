@@ -48,23 +48,24 @@ import {
 
 // --- Firebase Config & Init ---
 const firebaseConfig = {
-  apiKey: "AIzaSyDf86JHBvY9Y1B1x8QDbJkASmlANouEvX0",
-  authDomain: "card-games-28729.firebaseapp.com",
-  projectId: "card-games-28729",
-  storageBucket: "card-games-28729.firebasestorage.app",
-  messagingSenderId: "466779458834",
-  appId: "1:466779458834:web:2dab6e8b5155ab496d37cb",
+  apiKey: "AIzaSyBjIjK53vVJW1y5RaqEFGSFp0ECVDBEe1o",
+  authDomain: "game-hub-ff8aa.firebaseapp.com",
+  projectId: "game-hub-ff8aa",
+  storageBucket: "game-hub-ff8aa.firebasestorage.app",
+  messagingSenderId: "586559578902",
+  appId: "1:586559578902:web:e2c7114fcf22055a6aa637"
 };
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
 const APP_ID =
-  typeof __app_id !== "undefined" ? __app_id : "conspiracy-game-v12";
+  typeof __app_id !== "undefined" ? __app_id : "Emperor-Game";
 
 // --- Game Constants ---
 
 // Order maintained: 5, 4, 3, 3, 2, 2, 2
+// UPDATED: Backgrounds are now solid (bg-gray-900) to prevent transparency issues in stacked hands.
 const KINGS = {
   TREASURE: {
     id: "TREASURE",
@@ -72,7 +73,7 @@ const KINGS = {
     val: 5,
     icon: Gem,
     color: "text-yellow-400",
-    bg: "bg-yellow-900/40",
+    bg: "bg-gray-900",
     border: "border-yellow-500",
     item: "Treasure",
   },
@@ -82,7 +83,7 @@ const KINGS = {
     val: 4,
     icon: Sword,
     color: "text-red-500",
-    bg: "bg-red-900/40",
+    bg: "bg-gray-900",
     border: "border-red-600",
     item: "Weapon",
   },
@@ -92,7 +93,7 @@ const KINGS = {
     val: 3,
     icon: Crown,
     color: "text-purple-400",
-    bg: "bg-purple-900/40",
+    bg: "bg-gray-900",
     border: "border-purple-500",
     item: "Art",
   },
@@ -102,7 +103,7 @@ const KINGS = {
     val: 3,
     icon: Scroll,
     color: "text-blue-400",
-    bg: "bg-blue-900/40",
+    bg: "bg-gray-900",
     border: "border-blue-500",
     item: "Cloth",
   },
@@ -112,7 +113,7 @@ const KINGS = {
     val: 2,
     icon: Utensils,
     color: "text-green-400",
-    bg: "bg-green-900/40",
+    bg: "bg-gray-900",
     border: "border-green-500",
     item: "Food",
   },
@@ -122,7 +123,7 @@ const KINGS = {
     val: 2,
     icon: Castle,
     color: "text-orange-400",
-    bg: "bg-orange-900/40",
+    bg: "bg-gray-900",
     border: "border-orange-500",
     item: "Housing",
   },
@@ -132,7 +133,7 @@ const KINGS = {
     val: 2,
     icon: HeartPulse,
     color: "text-pink-400",
-    bg: "bg-pink-900/40",
+    bg: "bg-gray-900",
     border: "border-pink-500",
     item: "Treatment",
   },
@@ -306,11 +307,25 @@ const CardDisplay = ({
         ${king.bg}
         ${
           disabled
-            ? "opacity-50 cursor-not-allowed"
+            ? "cursor-not-allowed brightness-75"
             : "hover:scale-105 cursor-pointer hover:border-white"
         }
       `}
     >
+      {/* Top Left Value */}
+      <div
+        className={`absolute top-0.5 left-1 md:top-1 md:left-1 text-[9px] md:text-[10px] font-bold ${king.color} leading-none`}
+      >
+        {king.val}
+      </div>
+
+      {/* Bottom Right Value */}
+      <div
+        className={`absolute bottom-0.5 right-1 md:bottom-1 md:right-1 text-[9px] md:text-[10px] font-bold ${king.color} leading-none rotate-180`}
+      >
+        {king.val}
+      </div>
+
       <king.icon
         className={`${king.color} ${
           small ? "w-4 h-4" : "w-6 h-6 md:w-10 md:h-10"
@@ -323,11 +338,6 @@ const CardDisplay = ({
           {king.item}
         </span>
       )}
-      <div
-        className={`absolute top-0.5 right-1 md:top-1 md:right-1 text-[9px] md:text-[10px] font-bold ${king.color}`}
-      >
-        {king.val}
-      </div>
     </button>
   );
 };
@@ -1544,8 +1554,8 @@ export default function EmperorGame() {
                   {isReady
                     ? opponentReady
                       ? "Starting..."
-                      : "Waiting..."
-                    : "Next Round"}
+                      : "Waiting for Opponent"
+                    : "Ready for Next Round"}
                 </button>
               ))}
 
@@ -1837,10 +1847,20 @@ export default function EmperorGame() {
               <div className="flex flex-col gap-2">
                 <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
                   {/* Main Hand */}
-                  <div className="flex-1 overflow-x-auto pb-2 md:pb-0 px-2 w-full no-scrollbar">
-                    <div className="flex gap-2">
+                  <div className="flex-1 flex justify-center px-2 w-full">
+                    <div className="flex items-end -space-x-5 md:-space-x-10 hover:-space-x-3 transition-all duration-300 py-4">
                       {myHand.map((c, i) => (
-                        <div key={i} className="shrink-0">
+                        <div
+                          key={i}
+                          className={`
+                            shrink-0 relative transition-all duration-200
+                            ${
+                              selectedCards.includes(i)
+                                ? "z-20 -translate-y-4"
+                                : "hover:z-10 hover:-translate-y-2"
+                            }
+                          `}
+                        >
                           <CardDisplay
                             typeId={c}
                             onClick={() => isMyTurn && handleCardClick(c, i)}
