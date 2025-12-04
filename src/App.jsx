@@ -48,19 +48,19 @@ import {
 
 // --- Firebase Config & Init ---
 const firebaseConfig = {
-  apiKey: "AIzaSyBjIjK53vVJW1y5RaqEFGSFp0ECVDBEe1o",
-  authDomain: "game-hub-ff8aa.firebaseapp.com",
-  projectId: "game-hub-ff8aa",
-  storageBucket: "game-hub-ff8aa.firebasestorage.app",
-  messagingSenderId: "586559578902",
-  appId: "1:586559578902:web:e2c7114fcf22055a6aa637"
+  apiKey: "AIzaSyDf86JHBvY9Y1B1x8QDbJkASmlANouEvX0",
+  authDomain: "card-games-28729.firebaseapp.com",
+  projectId: "card-games-28729",
+  storageBucket: "card-games-28729.firebasestorage.app",
+  messagingSenderId: "466779458834",
+  appId: "1:466779458834:web:68572dd0fd90119f6d37cb",
 };
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
 const APP_ID =
-  typeof __app_id !== "undefined" ? __app_id : "Emperor-Game";
+  typeof __app_id !== "undefined" ? __app_id : "conspiracy-game-v12";
 
 // --- Game Constants ---
 
@@ -212,6 +212,16 @@ const FloatingBackground = () => (
           'url("https://www.transparenttextures.com/patterns/black-scales.png")',
       }}
     ></div>
+  </div>
+);
+
+// ADDED: The Footer Component
+const EmperorLogo = () => (
+  <div className="flex items-center justify-center gap-1 opacity-40 mt-auto pb-2 pt-2 relative z-10">
+    <Crown size={12} className="text-yellow-500" />
+    <span className="text-[10px] font-black tracking-widest text-yellow-500 uppercase">
+      EMPEROR
+    </span>
   </div>
 );
 
@@ -1280,10 +1290,10 @@ export default function EmperorGame() {
 
         {showGuide && <GameGuideModal onClose={() => setShowGuide(false)} />}
 
-        <div className="z-10 text-center mb-10">
+        <div className="z-10 text-center mb-10 animate-in fade-in zoom-in duration-700">
           <Crown
             size={64}
-            className="text-yellow-500 mx-auto mb-4 animate-bounce"
+            className="text-yellow-500 mx-auto mb-4 animate-bounce drop-shadow-[0_0_15px_rgba(234,179,8,0.5)]"
           />
           <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-yellow-300 to-yellow-600 font-serif tracking-widest drop-shadow-md">
             EMPEROR
@@ -1293,7 +1303,7 @@ export default function EmperorGame() {
           </p>
         </div>
 
-        <div className="bg-gray-900/80 backdrop-blur border border-gray-700 p-8 rounded-2xl w-full max-w-md shadow-2xl z-10">
+        <div className="bg-gray-900/80 backdrop-blur border border-gray-700 p-8 rounded-2xl w-full max-w-md shadow-2xl z-10 animate-in slide-in-from-bottom-10 duration-700 delay-100">
           {error && (
             <div className="bg-red-900/50 text-red-200 p-2 mb-4 rounded text-center text-sm border border-red-800">
               {error}
@@ -1312,9 +1322,10 @@ export default function EmperorGame() {
           >
             <Crown size={20} /> Establish Kingdom
           </button>
-          <div className="flex gap-2 mb-4">
+
+          <div className="flex flex-col sm:flex-row gap-2 mb-4">
             <input
-              className="flex-1 bg-black/50 border border-gray-600 p-3 rounded text-white placeholder-gray-500 uppercase font-mono tracking-wider"
+              className="w-full sm:flex-1 bg-black/50 border border-gray-600 p-3 rounded text-white placeholder-gray-500 uppercase font-mono tracking-wider focus:border-yellow-500 outline-none"
               placeholder="ROOM CODE"
               value={roomCodeInput}
               onChange={(e) => setRoomCodeInput(e.target.value.toUpperCase())}
@@ -1322,7 +1333,7 @@ export default function EmperorGame() {
             <button
               onClick={joinRoom}
               disabled={loading}
-              className="bg-gray-800 hover:bg-gray-700 border border-gray-600 px-6 rounded font-bold transition-colors"
+              className="w-full sm:w-auto bg-gray-800 hover:bg-gray-700 border border-gray-600 px-6 py-3 rounded font-bold transition-colors"
             >
               Join
             </button>
@@ -1351,7 +1362,7 @@ export default function EmperorGame() {
           />
         )}
 
-        <div className="z-10 w-full max-w-lg bg-gray-800/90 p-8 rounded-2xl border border-gray-700 shadow-2xl">
+        <div className="z-10 w-full max-w-lg bg-gray-800/90 p-8 rounded-2xl border border-gray-700 shadow-2xl mb-4">
           <div className="flex justify-between items-center mb-8 border-b border-gray-700 pb-4">
             <h2 className="text-2xl font-serif text-yellow-500">
               Throne Room: {roomId}
@@ -1426,6 +1437,9 @@ export default function EmperorGame() {
             </button>
           </div>
         </div>
+
+        {/* ADDED: Emperor Logo Footer */}
+        <EmperorLogo />
       </div>
     );
   }
@@ -1554,8 +1568,8 @@ export default function EmperorGame() {
                   {isReady
                     ? opponentReady
                       ? "Starting..."
-                      : "Waiting for Opponent"
-                    : "Ready for Next Round"}
+                      : "Waiting..."
+                    : "Next Round"}
                 </button>
               ))}
 
@@ -2097,9 +2111,15 @@ export default function EmperorGame() {
             </div>
           </div>
         )}
+
+        {/* ADDED: Emperor Logo Footer */}
+        <div className="bg-gray-950 pb-1 pt-1 z-50">
+          <EmperorLogo />
+        </div>
       </div>
     );
   }
 
   return null;
 }
+//final done
