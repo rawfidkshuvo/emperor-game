@@ -53,7 +53,7 @@ const firebaseConfig = {
   projectId: "game-hub-ff8aa",
   storageBucket: "game-hub-ff8aa.firebasestorage.app",
   messagingSenderId: "586559578902",
-  appId: "1:586559578902:web:e2c7114fcf22055a6aa637"
+  appId: "1:586559578902:web:2c9029761ef876856aa637"
 };
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -485,7 +485,7 @@ const LogViewer = ({ logs, onClose }) => (
         {[...logs].reverse().map((log, i) => (
           <div
             key={i}
-            className={`text-sm p-3 rounded border-l-2 ${
+            className={`text-sm p-3 rounded border-l-2 flex items-center gap-2 ${
               log.type === "danger"
                 ? "bg-red-900/20 border-red-500 text-red-200"
                 : log.type === "blue"
@@ -495,6 +495,10 @@ const LogViewer = ({ logs, onClose }) => (
                 : "bg-gray-700/30 border-gray-500 text-gray-300"
             }`}
           >
+            {/* UPDATED: Show User Icon for player events instead of circle */}
+            {(log.type === "danger" || log.type === "blue") && (
+              <User size={14} className="shrink-0" />
+            )}
             {log.text}
           </div>
         ))}
@@ -1195,6 +1199,7 @@ export default function EmperorGame() {
     }
   };
 
+  // UPDATED: Logic to use real player names and remove emojis
   const performRoundEnd = async (players, kings) => {
     let logs = [];
     logs.push(createLog("🔔 Round End! Revealing Secret Plans...", "neutral"));
@@ -1216,6 +1221,10 @@ export default function EmperorGame() {
     let redScore = 0;
     let blueScore = 0;
 
+    // --- NEW: Identify Players by Color to get Names ---
+    const redPlayer = players.find((p) => p.color === "red");
+    const bluePlayer = players.find((p) => p.color === "blue");
+
     Object.keys(kings).forEach((kId) => {
       const k = kings[kId];
       const redCount = k.redItems.length;
@@ -1223,11 +1232,17 @@ export default function EmperorGame() {
 
       if (redCount > blueCount) {
         if (k.owner !== "red")
-          logs.push(createLog(`🔴 Red Player conquered ${k.name}!`, "danger"));
+          // Uses real name and removes the emoji from the text
+          logs.push(
+            createLog(`${redPlayer.name} conquered ${k.name}!`, "danger")
+          );
         k.owner = "red";
       } else if (blueCount > redCount) {
         if (k.owner !== "blue")
-          logs.push(createLog(`🔵 Blue Player conquered ${k.name}!`, "blue")); // Changed type
+          // Uses real name and removes the emoji from the text
+          logs.push(
+            createLog(`${bluePlayer.name} conquered ${k.name}!`, "blue")
+          );
         k.owner = "blue";
       }
 
@@ -1246,11 +1261,11 @@ export default function EmperorGame() {
     let winReason = null;
 
     if (redKingdoms >= 4 || redScore >= 11) {
-      winnerId = players.find((p) => p.color === "red").id;
+      winnerId = redPlayer.id;
       winReason =
         redKingdoms >= 4 ? "controlled 4 Kingdoms" : "scored 11 Victory Points";
     } else if (blueKingdoms >= 4 || blueScore >= 11) {
-      winnerId = players.find((p) => p.color === "blue").id;
+      winnerId = bluePlayer.id;
       winReason =
         blueKingdoms >= 4
           ? "controlled 4 Kingdoms"
@@ -1760,11 +1775,11 @@ export default function EmperorGame() {
 
           <div className="h-8 flex items-center justify-center my-2 shrink-0 relative">
             {!isInteracting && (
-              <div className="w-full max-w-md text-center text-sm text-gray-400 bg-gray-900/50 p-1 rounded backdrop-blur-sm">
+              <div className="w-full max-w-md text-center text-sm text-gray-400 bg-gray-900/50 p-1 rounded backdrop-blur-sm flex justify-center items-center gap-2">
                 {gameState.logs.slice(-1).map((l, i) => (
                   <span
                     key={i}
-                    className={
+                    className={`flex items-center gap-2 ${
                       l.type === "danger"
                         ? "text-red-400"
                         : l.type === "blue"
@@ -1772,8 +1787,12 @@ export default function EmperorGame() {
                         : l.type === "success"
                         ? "text-green-400"
                         : "text-gray-300"
-                    }
+                    }`}
                   >
+                    {/* Show User Icon for player events here too */}
+                    {(l.type === "danger" || l.type === "blue") && (
+                      <User size={14} />
+                    )}
                     {l.text}
                   </span>
                 ))}
@@ -2122,4 +2141,3 @@ export default function EmperorGame() {
 
   return null;
 }
-//final done
