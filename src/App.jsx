@@ -46,6 +46,7 @@ import {
   Layers,
   Hammer,
   Sparkles,
+  Home, // Added Home Icon
 } from "lucide-react";
 
 // --- Firebase Config & Init ---
@@ -66,9 +67,6 @@ const APP_ID =
 const GAME_ID = "4";
 
 // --- Game Constants ---
-
-// Order maintained: 5, 4, 3, 3, 2, 2, 2
-// UPDATED: Backgrounds are now solid (bg-gray-900) to prevent transparency issues in stacked hands.
 const KINGS = {
   TREASURE: {
     id: "TREASURE",
@@ -196,7 +194,6 @@ const shuffle = (array) => {
   return array;
 };
 
-// Creates a unique log object to prevent Firestore deduplication issues
 const createLog = (text, type = "neutral") => ({
   text,
   type,
@@ -218,7 +215,6 @@ const FloatingBackground = () => (
   </div>
 );
 
-// ADDED: The Footer Component
 const EmperorLogo = () => (
   <div className="flex items-center justify-center gap-1 opacity-40 mt-auto pb-2 pt-2 relative z-10">
     <Crown size={12} className="text-yellow-500" />
@@ -228,26 +224,44 @@ const EmperorLogo = () => (
   </div>
 );
 
-const LeaveConfirmModal = ({ onConfirm, onCancel }) => (
+// UPDATED: Modal now handles "Return to Lobby" for Host
+const LeaveConfirmModal = ({
+  onConfirm,
+  onCancel,
+  isHost,
+  onReturnToLobby,
+}) => (
   <div className="fixed inset-0 bg-black/90 z-[200] flex items-center justify-center p-4 animate-in fade-in">
     <div className="bg-gray-800 rounded-xl border border-gray-700 p-6 max-w-sm w-full text-center shadow-2xl">
       <h3 className="text-xl font-bold text-white mb-2">Abandon Kingdom?</h3>
       <p className="text-gray-400 mb-6 text-sm">
-        Are you sure you want to leave? This will remove you from the room.
+        {isHost && onReturnToLobby
+          ? "As Emperor (Host), you can return everyone to the Lobby or dissolve the room completely."
+          : "Are you sure you want to leave? This will remove you from the room."}
       </p>
-      <div className="grid grid-cols-2 gap-3">
-        <button
-          onClick={onCancel}
-          className="bg-gray-700 hover:bg-gray-600 text-white py-3 rounded font-bold transition-colors"
-        >
-          Stay
-        </button>
-        <button
-          onClick={onConfirm}
-          className="bg-red-600 hover:bg-red-500 text-white py-3 rounded font-bold transition-colors"
-        >
-          Leave
-        </button>
+      <div className="flex flex-col gap-3">
+        {isHost && onReturnToLobby && (
+          <button
+            onClick={onReturnToLobby}
+            className="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 rounded font-bold transition-colors flex items-center justify-center gap-2 border border-blue-400"
+          >
+            <Home size={18} /> Return Crew to Lobby
+          </button>
+        )}
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            onClick={onCancel}
+            className="bg-gray-700 hover:bg-gray-600 text-white py-3 rounded font-bold transition-colors"
+          >
+            Stay
+          </button>
+          <button
+            onClick={onConfirm}
+            className="bg-red-600 hover:bg-red-500 text-white py-3 rounded font-bold transition-colors"
+          >
+            Leave
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -304,7 +318,6 @@ const CardDisplay = ({
     );
   }
 
-  // Responsive sizing for main cards
   return (
     <button
       onClick={onClick}
@@ -325,20 +338,16 @@ const CardDisplay = ({
         }
       `}
     >
-      {/* Top Left Value */}
       <div
         className={`absolute top-0.5 left-1 md:top-1 md:left-1 text-[9px] md:text-[10px] font-bold ${king.color} leading-none`}
       >
         {king.val}
       </div>
-
-      {/* Bottom Right Value */}
       <div
         className={`absolute bottom-0.5 right-1 md:bottom-1 md:right-1 text-[9px] md:text-[10px] font-bold ${king.color} leading-none rotate-180`}
       >
         {king.val}
       </div>
-
       <king.icon
         className={`${king.color} ${
           small ? "w-4 h-4" : "w-6 h-6 md:w-10 md:h-10"
@@ -380,7 +389,6 @@ const TokenButton = ({ type, used, onClick, active, disabled }) => {
           used ? "text-gray-500" : token.color
         } w-4 h-4 md:w-5 md:h-5`}
       />
-      {/* Tooltip hidden on touch, visible on hover */}
       <div className="absolute bottom-full mb-2 hidden md:group-hover:block w-32 bg-black text-white text-[10px] p-2 rounded z-50 pointer-events-none">
         {token.desc} ({token.reqCards} cards)
       </div>
@@ -397,14 +405,11 @@ const KingCard = ({ id, data, myColor }) => {
 
   return (
     <div className="flex flex-col items-center gap-1 w-full">
-      {/* Top Items */}
       <div className="flex flex-wrap justify-center gap-0.5 min-h-[1rem] items-end w-full">
         {topItems.map((item, i) => (
           <CardDisplay key={i} typeId={item} tiny />
         ))}
       </div>
-
-      {/* Main King Card (Playing Card Style) */}
       <div
         className={`
         relative w-full bg-gray-800 rounded-lg md:rounded-xl border-2 md:border-4 transition-all flex flex-col items-center justify-center z-10
@@ -418,21 +423,16 @@ const KingCard = ({ id, data, myColor }) => {
         }
       `}
       >
-        {/* Top Left Value */}
         <div
           className={`absolute top-1 left-1 font-bold text-[10px] md:text-lg ${king.color}`}
         >
           {king.val}
         </div>
-
-        {/* Bottom Right Value */}
         <div
           className={`absolute bottom-1 right-1 font-bold text-[10px] md:text-lg ${king.color} rotate-180`}
         >
           {king.val}
         </div>
-
-        {/* Ownership Token */}
         {owner && (
           <div
             className={`absolute -top-2 -right-2 md:-top-3 md:-right-3 rounded-full p-1 md:p-2 border-2 bg-gray-900 z-20 shadow-lg
@@ -445,8 +445,6 @@ const KingCard = ({ id, data, myColor }) => {
             <Shield className={"w-3 h-3 md:w-5 md:h-5"} fill="currentColor" />
           </div>
         )}
-
-        {/* Center Content */}
         <king.icon
           className={`${king.color} w-5 h-5 md:w-10 md:h-10 mb-1 md:mb-2`}
         />
@@ -459,8 +457,6 @@ const KingCard = ({ id, data, myColor }) => {
           {king.item}
         </span>
       </div>
-
-      {/* Bottom Items */}
       <div className="flex gap-0.5 min-h-[2rem] items-start">
         {bottomItems.map((item, i) => (
           <CardDisplay key={i} typeId={item} tiny />
@@ -498,7 +494,6 @@ const LogViewer = ({ logs, onClose }) => (
                 : "bg-gray-700/30 border-gray-500 text-gray-300"
             }`}
           >
-            {/* UPDATED: Show User Icon for player events instead of circle */}
             {(log.type === "danger" || log.type === "blue") && (
               <User size={14} className="shrink-0" />
             )}
@@ -529,7 +524,6 @@ const GameGuideModal = ({ onClose }) => (
       </div>
 
       <div className="flex-1 overflow-y-auto p-6 space-y-8 text-gray-300 scrollbar-thin scrollbar-thumb-gray-700">
-        {/* Objective */}
         <div className="bg-gray-800/50 p-6 rounded-xl border border-gray-700">
           <h3 className="text-xl font-bold text-white mb-3 flex items-center gap-3">
             <Trophy className="text-yellow-500" /> The Goal
@@ -553,7 +547,6 @@ const GameGuideModal = ({ onClose }) => (
           </p>
         </div>
 
-        {/* Actions */}
         <div>
           <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
             <Sword className="text-red-500" /> Action Tokens
@@ -639,8 +632,8 @@ export default function EmperorGame() {
   // Gameplay Local State
   const [selectedToken, setSelectedToken] = useState(null);
   const [selectedCards, setSelectedCards] = useState([]);
-  const [interactiveMode, setInteractiveMode] = useState(null); // 'GIFT_WAIT', 'TRADE_WAIT', 'TRADE_SPLIT'
-  const [splitPile1, setSplitPile1] = useState([]); // For Trade Action UI
+  const [interactiveMode, setInteractiveMode] = useState(null); 
+  const [splitPile1, setSplitPile1] = useState([]); 
 
   // UI State for Modal
   const [showRoundSummary, setShowRoundSummary] = useState(false);
@@ -663,6 +656,20 @@ export default function EmperorGame() {
     return () => unsubscribe();
   }, []);
 
+  // --- ADD THIS: Restore Session from LocalStorage ---
+  useEffect(() => {
+    if (user && view === "menu") {
+      const savedRoomId = localStorage.getItem("emperor_room_id");
+      const savedPlayerName = localStorage.getItem("emperor_player_name");
+
+      if (savedRoomId && savedPlayerName) {
+        setLoading(true);
+        setPlayerName(savedPlayerName);
+        setRoomId(savedRoomId); 
+      }
+    }
+  }, [user, view]);
+
   useEffect(() => {
     if (!roomId || !user) return;
     const unsub = onSnapshot(
@@ -671,9 +678,14 @@ export default function EmperorGame() {
         if (snap.exists()) {
           const data = snap.data();
           if (!data.players.some((p) => p.id === user.uid)) {
+            // Kicked or not in room
             setRoomId("");
             setView("menu");
-            setError("You are not in this room.");
+            setError("You were removed from the room.");
+            // Clear storage
+            localStorage.removeItem("emperor_room_id");
+            localStorage.removeItem("emperor_player_name");
+            setLoading(false);
             return;
           }
           setGameState(data);
@@ -684,10 +696,15 @@ export default function EmperorGame() {
           )
             setView("game");
           else setView("lobby");
+          setLoading(false);
         } else {
+          // Room deleted (Host Left)
           setRoomId("");
           setView("menu");
-          setError("Room closed.");
+          setError("The Kingdom has fallen (Room Closed).");
+          localStorage.removeItem("emperor_room_id");
+          localStorage.removeItem("emperor_player_name");
+          setLoading(false);
         }
       }
     );
@@ -720,14 +737,11 @@ export default function EmperorGame() {
       (gameState.status === "round_end" || gameState.status === "finished")
     ) {
       setShowSecretReveal(true);
-      setShowRoundSummary(false); // Ensure Summary doesn't pop up immediately
+      setShowRoundSummary(false); 
     }
     prevStatus.current = gameState.status;
   }, [gameState?.status]);
 
-  // ... existing auth useEffect ...
-
-  // --- ADD THIS EFFECT ---
   useEffect(() => {
     const unsub = onSnapshot(doc(db, "game_hub_settings", "config"), (doc) => {
       if (doc.exists()) {
@@ -742,7 +756,6 @@ export default function EmperorGame() {
     return () => unsub();
   }, []);
 
-  // --- ADD THIS BLOCK ---
   if (isMaintenance) {
     return (
       <div className="min-h-screen bg-gray-950 flex flex-col items-center justify-center text-white p-4 text-center">
@@ -756,10 +769,7 @@ export default function EmperorGame() {
             The Emperor's court is currently closed for renovations.
           </p>
         </div>
-        {/* Add Spacing Between Boxes */}
         <div className="h-8"></div>
-
-        {/* Clickable Second Card */}
         <a href="https://rawfidkshuvo.github.io/gamehub/">
           <div className="flex items-center justify-center gap-3 mb-2">
             <div className="text-center pb-12 animate-pulse">
@@ -774,8 +784,6 @@ export default function EmperorGame() {
     );
   }
 
-  // ... existing code: if (view === "menu") { ...
-
   // --- Actions ---
 
   const createRoom = async () => {
@@ -783,7 +791,6 @@ export default function EmperorGame() {
     setLoading(true);
     const newId = Math.random().toString(36).substring(2, 7).toUpperCase();
 
-    // Initialize Kings
     const initialKings = {};
     Object.values(KINGS).forEach((k) => {
       const { icon, ...serializableKing } = k;
@@ -814,7 +821,7 @@ export default function EmperorGame() {
               TRADE: false,
             },
             faceDownCards: [],
-            sabotagedCards: [], // Initialize sabotaged pile
+            sabotagedCards: [],
             ready: false,
           },
         ],
@@ -831,6 +838,10 @@ export default function EmperorGame() {
         winReason: null,
       }
     );
+    // SAVE SESSION
+    localStorage.setItem("emperor_room_id", newId);
+    localStorage.setItem("emperor_player_name", playerName);
+
     setRoomId(newId);
     setRoomCodeInput(newId);
     setView("lobby");
@@ -859,26 +870,36 @@ export default function EmperorGame() {
 
     const data = snap.data();
     if (data.players.length >= 2) {
-      setError("Room full");
-      setLoading(false);
-      return;
+        // Allow rejoin if user is already in
+        if (!data.players.some(p => p.id === user.uid)) {
+            setError("Room full");
+            setLoading(false);
+            return;
+        }
     }
 
-    const newPlayers = [
-      ...data.players,
-      {
-        id: user.uid,
-        name: playerName,
-        color: "blue",
-        hand: [],
-        tokens: { SECRET: false, SABOTAGE: false, GIFT: false, TRADE: false },
-        faceDownCards: [],
-        sabotagedCards: [], // Initialize sabotaged pile
-        ready: false,
-      },
-    ];
+    // Only add if not already in
+    if (!data.players.some(p => p.id === user.uid)) {
+        const newPlayers = [
+        ...data.players,
+        {
+            id: user.uid,
+            name: playerName,
+            color: "blue",
+            hand: [],
+            tokens: { SECRET: false, SABOTAGE: false, GIFT: false, TRADE: false },
+            faceDownCards: [],
+            sabotagedCards: [],
+            ready: false,
+        },
+        ];
+        await updateDoc(ref, { players: newPlayers });
+    }
 
-    await updateDoc(ref, { players: newPlayers });
+    // SAVE SESSION
+    localStorage.setItem("emperor_room_id", roomCodeInput);
+    localStorage.setItem("emperor_player_name", playerName);
+
     setRoomId(roomCodeInput);
     setLoading(false);
   };
@@ -899,27 +920,82 @@ export default function EmperorGame() {
 
       if (snap.exists()) {
         const data = snap.data();
-        const newPlayers = data.players.filter((p) => p.id !== user.uid);
-
-        if (newPlayers.length === 0) {
-          await deleteDoc(roomRef);
+        
+        // --- NEW: If Host leaves, destroy room ---
+        if (data.hostId === user.uid) {
+            await deleteDoc(roomRef);
         } else {
-          let newHostId = data.hostId;
-          if (data.hostId === user.uid) {
-            newHostId = newPlayers[0].id;
-          }
-          await updateDoc(roomRef, {
-            players: newPlayers,
-            hostId: newHostId,
-          });
+            // Normal player leaving
+            const newPlayers = data.players.filter((p) => p.id !== user.uid);
+            await updateDoc(roomRef, {
+                players: newPlayers,
+            });
         }
       }
     } catch (e) {
       console.error("Error leaving room:", e);
     }
+    
+    // CLEAR SESSION
+    localStorage.removeItem("emperor_room_id");
+    localStorage.removeItem("emperor_player_name");
+
     setRoomId("");
     setView("menu");
     setGameState(null);
+    setShowLeaveConfirm(false);
+  };
+
+  // --- NEW: Kick Player Function ---
+  const kickPlayer = async (targetId) => {
+    if (!gameState || gameState.hostId !== user.uid) return;
+    const newPlayers = gameState.players.filter((p) => p.id !== targetId);
+    await updateDoc(
+      doc(db, "artifacts", APP_ID, "public", "data", "rooms", roomId),
+      { players: newPlayers }
+    );
+  };
+
+  // --- NEW: Return to Lobby Function ---
+  const returnToLobby = async () => {
+    if (!gameState || gameState.hostId !== user.uid) return;
+
+    // Reset players but keep ID/Name/Color
+    const resetPlayers = gameState.players.map((p) => ({
+      ...p,
+      hand: [],
+      tokens: { SECRET: false, SABOTAGE: false, GIFT: false, TRADE: false },
+      faceDownCards: [],
+      sabotagedCards: [],
+      ready: false,
+    }));
+
+    // Reset Kings to Neutral
+    const resetKings = { ...gameState.kings };
+    Object.keys(resetKings).forEach((k) => {
+        resetKings[k].redItems = [];
+        resetKings[k].blueItems = [];
+        resetKings[k].owner = null;
+    });
+
+    await updateDoc(
+      doc(db, "artifacts", APP_ID, "public", "data", "rooms", roomId),
+      {
+        status: "lobby",
+        phase: "lobby",
+        players: resetPlayers,
+        kings: resetKings,
+        deck: [],
+        round: 1,
+        turnPlayerId: null,
+        pendingInteraction: null,
+        logs: [],
+        winnerId: null,
+        roundReveal: null,
+        readyForNextRound: {},
+        winReason: null,
+      }
+    );
     setShowLeaveConfirm(false);
   };
 
@@ -1096,11 +1172,9 @@ export default function EmperorGame() {
     let newKings = JSON.parse(JSON.stringify(gameState.kings));
     let newDeck = [...gameState.deck];
 
-    // FIX: Reconstruct the sorted view the user clicked on to get the correct Card IDs
     const handView = [...me.hand].sort((a, b) => KINGS[b].val - KINGS[a].val);
     const cardsToPlay = selectedCards.map((idx) => handView[idx]);
 
-    // Helper to remove specific items from the real (unsorted) hand
     const removeCardsFromHand = (cardsToRemove) => {
       cardsToRemove.forEach((cardType) => {
         const idx = newPlayers[meIdx].hand.indexOf(cardType);
@@ -1161,7 +1235,6 @@ export default function EmperorGame() {
         return;
       }
 
-      // Resolve piles using the sorted handView
       const p1Cards = pile1Indices.map((hIdx) => handView[hIdx]);
 
       const pile2Indices = selectedCards.filter(
@@ -1254,29 +1327,24 @@ export default function EmperorGame() {
     }
   };
 
-  // UPDATED: Logic to use real player names and remove emojis
   const performRoundEnd = async (players, kings) => {
     let logs = [];
     logs.push(createLog("🔔 Round End! Revealing Secret Plans...", "neutral"));
 
-    // 1. Capture Secrets for Display
     const roundReveal = {};
     players.forEach((p) => {
       roundReveal[p.id] = [...p.faceDownCards];
-      // Distribute
       p.faceDownCards.forEach((c) => {
         distributeItems(kings, c, p.color);
       });
       p.faceDownCards = [];
     });
 
-    // 2. Calculate Control
     let redKingdoms = 0;
     let blueKingdoms = 0;
     let redScore = 0;
     let blueScore = 0;
 
-    // --- NEW: Identify Players by Color to get Names ---
     const redPlayer = players.find((p) => p.color === "red");
     const bluePlayer = players.find((p) => p.color === "blue");
 
@@ -1287,14 +1355,12 @@ export default function EmperorGame() {
 
       if (redCount > blueCount) {
         if (k.owner !== "red")
-          // Uses real name and removes the emoji from the text
           logs.push(
             createLog(`${redPlayer.name} conquered ${k.name}!`, "danger")
           );
         k.owner = "red";
       } else if (blueCount > redCount) {
         if (k.owner !== "blue")
-          // Uses real name and removes the emoji from the text
           logs.push(
             createLog(`${bluePlayer.name} conquered ${k.name}!`, "blue")
           );
@@ -1311,7 +1377,6 @@ export default function EmperorGame() {
       }
     });
 
-    // 3. Check Win Condition
     let winnerId = null;
     let winReason = null;
 
@@ -1346,12 +1411,7 @@ export default function EmperorGame() {
         logs: arrayUnion(...logs),
       }
     );
-
-    // We do NOT show summary here automatically anymore.
-    // Workflow: Secrets revealed -> User Inspects -> User clicks "Show Results" or "Next"
   };
-
-  // --- UI Renders ---
 
   if (view === "menu") {
     return (
@@ -1420,6 +1480,7 @@ export default function EmperorGame() {
   }
 
   if (view === "lobby" && gameState) {
+    const isHost = gameState.hostId === user.uid;
     return (
       <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-6 relative">
         <FloatingBackground />
@@ -1429,6 +1490,7 @@ export default function EmperorGame() {
           <LeaveConfirmModal
             onConfirm={leaveRoom}
             onCancel={() => setShowLeaveConfirm(false)}
+            isHost={isHost}
           />
         )}
 
@@ -1467,11 +1529,23 @@ export default function EmperorGame() {
                   )}{" "}
                   {p.name}
                 </span>
-                {p.id === user.uid && (
-                  <span className="text-xs bg-gray-700 px-2 py-1 rounded">
-                    You
-                  </span>
-                )}
+                <div className="flex items-center gap-2">
+                    {p.id === user.uid && (
+                    <span className="text-xs bg-gray-700 px-2 py-1 rounded">
+                        You
+                    </span>
+                    )}
+                    {/* --- NEW: KICK BUTTON --- */}
+                    {isHost && p.id !== user.uid && (
+                        <button 
+                            onClick={() => kickPlayer(p.id)}
+                            className="p-2 hover:bg-red-900/50 rounded text-red-400"
+                            title="Kick Player"
+                        >
+                            <Trash2 size={16} />
+                        </button>
+                    )}
+                </div>
               </div>
             ))}
             {gameState.players.length < 2 && (
@@ -1508,7 +1582,6 @@ export default function EmperorGame() {
           </div>
         </div>
 
-        {/* ADDED: Emperor Logo Footer */}
         <EmperorLogo />
       </div>
     );
@@ -1517,6 +1590,7 @@ export default function EmperorGame() {
   if (view === "game" && gameState) {
     const me = gameState.players.find((p) => p.id === user.uid);
     const opponent = gameState.players.find((p) => p.id !== user.uid);
+    const isHost = gameState.hostId === user.uid;
 
     if (!opponent) {
       return (
@@ -1535,6 +1609,8 @@ export default function EmperorGame() {
                 setRoomId("");
                 setGameState(null);
                 setView("menu");
+                localStorage.removeItem("emperor_room_id");
+                localStorage.removeItem("emperor_player_name");
               }}
               className="bg-yellow-600 hover:bg-yellow-500 text-black px-6 py-3 rounded font-bold w-full"
             >
@@ -1568,7 +1644,6 @@ export default function EmperorGame() {
     const isReady = gameState.readyForNextRound?.[user.uid];
     const opponentReady = gameState.readyForNextRound?.[opponent.id];
 
-    // ADDED: Prompt logic for when interaction is required
     const showPrompt = isInteracting || (isMyTurn && !isRoundEnd);
     let promptText = "";
     if (isInteracting) {
@@ -1602,6 +1677,8 @@ export default function EmperorGame() {
           <LeaveConfirmModal
             onConfirm={leaveRoom}
             onCancel={() => setShowLeaveConfirm(false)}
+            isHost={isHost}
+            onReturnToLobby={returnToLobby}
           />
         )}
 
@@ -1616,7 +1693,6 @@ export default function EmperorGame() {
             </div>
           </div>
           <div className="flex gap-2">
-            {/* Show Results / Next Round Action Button in Top Bar */}
             {isRoundEnd &&
               (gameState.winnerId ? (
                 <button
@@ -1844,7 +1920,6 @@ export default function EmperorGame() {
                         : "text-gray-300"
                     }`}
                   >
-                    {/* Show User Icon for player events here too */}
                     {(l.type === "danger" || l.type === "blue") && (
                       <User size={14} />
                     )}
@@ -1960,7 +2035,7 @@ export default function EmperorGame() {
                     </div>
                   </div>
 
-                  {/* Secret & Discarded Area (Right Side) - Updated to single row */}
+                  {/* Secret & Discarded Area (Right Side) */}
                   <div className="flex gap-2 items-center shrink-0 min-w-[80px] overflow-x-auto no-scrollbar">
                     {me.faceDownCards.length > 0 && (
                       <div className="flex gap-1 items-center bg-black/20 p-1 rounded border-l border-gray-700 pl-2 shrink-0">
@@ -2083,7 +2158,7 @@ export default function EmperorGame() {
           </div>
         )}
 
-        {/* --- Game Result / Round Summary Modal (Step 2 of End Flow - Manual Trigger Only) --- */}
+        {/* --- Game Result / Round Summary Modal --- */}
         {isRoundEnd && showRoundSummary && (
           <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 animate-in fade-in">
             <div
@@ -2166,6 +2241,7 @@ export default function EmperorGame() {
                           : "Waiting for Opponent"
                         : "Ready for Rematch"}
                     </button>
+                    {/* UPDATED: Exit Room Button uses Host logic too */}
                     <button
                       onClick={() => setShowLeaveConfirm(true)}
                       className="w-full bg-transparent border border-red-900 text-red-400 hover:bg-red-900/20 px-8 py-3 rounded-lg font-bold"
@@ -2186,7 +2262,6 @@ export default function EmperorGame() {
           </div>
         )}
 
-        {/* ADDED: Emperor Logo Footer */}
         <div className="bg-gray-950 pb-1 pt-1 z-50">
           <EmperorLogo />
         </div>
