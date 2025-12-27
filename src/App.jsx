@@ -1662,9 +1662,9 @@ export default function EmperorGame() {
     let promptText = "";
     if (isInteracting) {
       if (gameState.pendingInteraction.type === "GIFT")
-        promptText = "Gift Received: Pick 1 Card";
+        promptText = "Gift Received: Pick 1 Card from top right";
       if (gameState.pendingInteraction.type === "TRADE")
-        promptText = "Trade Offered: Pick 1 Pile";
+        promptText = "Trade Offered: Pick 1 Pile from top right";
     } else if (isMyTurn && !isRoundEnd) {
       if (selectedToken) {
         const t = TOKENS[selectedToken];
