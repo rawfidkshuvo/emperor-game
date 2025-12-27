@@ -56,14 +56,13 @@ const firebaseConfig = {
   projectId: "game-hub-ff8aa",
   storageBucket: "game-hub-ff8aa.firebasestorage.app",
   messagingSenderId: "586559578902",
-  appId: "1:586559578902:web:2c9029761ef876856aa637"
+  appId: "1:586559578902:web:2c9029761ef876856aa637",
 };
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const APP_ID =
-  typeof __app_id !== "undefined" ? __app_id : "emperor-game";
+const APP_ID = typeof __app_id !== "undefined" ? __app_id : "emperor-game";
 const GAME_ID = "4";
 
 // --- Game Constants ---
@@ -405,11 +404,15 @@ const KingCard = ({ id, data, myColor }) => {
 
   return (
     <div className="flex flex-col items-center gap-1 w-full">
-      <div className="flex flex-wrap justify-center gap-0.5 min-h-[1rem] items-end w-full">
+      {/* TOP ITEMS (Opponent) */}
+      {/* Already had flex-wrap, ensures it grows upwards/stacked */}
+      <div className="flex flex-wrap justify-center gap-0.5 min-h-[1rem] items-end w-full content-end">
         {topItems.map((item, i) => (
           <CardDisplay key={i} typeId={item} tiny />
         ))}
       </div>
+
+      {/* MIDDLE KING CARD */}
       <div
         className={`
         relative w-full bg-gray-800 rounded-lg md:rounded-xl border-2 md:border-4 transition-all flex flex-col items-center justify-center z-10
@@ -457,7 +460,10 @@ const KingCard = ({ id, data, myColor }) => {
           {king.item}
         </span>
       </div>
-      <div className="flex gap-0.5 min-h-[2rem] items-start">
+
+      {/* BOTTOM ITEMS (You) */}
+      {/* FIX: Added flex-wrap, justify-center, and w-full */}
+      <div className="flex flex-wrap justify-center gap-0.5 min-h-[2rem] items-start w-full">
         {bottomItems.map((item, i) => (
           <CardDisplay key={i} typeId={item} tiny />
         ))}
@@ -632,8 +638,8 @@ export default function EmperorGame() {
   // Gameplay Local State
   const [selectedToken, setSelectedToken] = useState(null);
   const [selectedCards, setSelectedCards] = useState([]);
-  const [interactiveMode, setInteractiveMode] = useState(null); 
-  const [splitPile1, setSplitPile1] = useState([]); 
+  const [interactiveMode, setInteractiveMode] = useState(null);
+  const [splitPile1, setSplitPile1] = useState([]);
 
   // UI State for Modal
   const [showRoundSummary, setShowRoundSummary] = useState(false);
@@ -665,7 +671,7 @@ export default function EmperorGame() {
       if (savedRoomId && savedPlayerName) {
         setLoading(true);
         setPlayerName(savedPlayerName);
-        setRoomId(savedRoomId); 
+        setRoomId(savedRoomId);
       }
     }
   }, [user, view]);
@@ -737,7 +743,7 @@ export default function EmperorGame() {
       (gameState.status === "round_end" || gameState.status === "finished")
     ) {
       setShowSecretReveal(true);
-      setShowRoundSummary(false); 
+      setShowRoundSummary(false);
     }
     prevStatus.current = gameState.status;
   }, [gameState?.status]);
@@ -870,30 +876,30 @@ export default function EmperorGame() {
 
     const data = snap.data();
     if (data.players.length >= 2) {
-        // Allow rejoin if user is already in
-        if (!data.players.some(p => p.id === user.uid)) {
-            setError("Room full");
-            setLoading(false);
-            return;
-        }
+      // Allow rejoin if user is already in
+      if (!data.players.some((p) => p.id === user.uid)) {
+        setError("Room full");
+        setLoading(false);
+        return;
+      }
     }
 
     // Only add if not already in
-    if (!data.players.some(p => p.id === user.uid)) {
-        const newPlayers = [
+    if (!data.players.some((p) => p.id === user.uid)) {
+      const newPlayers = [
         ...data.players,
         {
-            id: user.uid,
-            name: playerName,
-            color: "blue",
-            hand: [],
-            tokens: { SECRET: false, SABOTAGE: false, GIFT: false, TRADE: false },
-            faceDownCards: [],
-            sabotagedCards: [],
-            ready: false,
+          id: user.uid,
+          name: playerName,
+          color: "blue",
+          hand: [],
+          tokens: { SECRET: false, SABOTAGE: false, GIFT: false, TRADE: false },
+          faceDownCards: [],
+          sabotagedCards: [],
+          ready: false,
         },
-        ];
-        await updateDoc(ref, { players: newPlayers });
+      ];
+      await updateDoc(ref, { players: newPlayers });
     }
 
     // SAVE SESSION
@@ -920,22 +926,22 @@ export default function EmperorGame() {
 
       if (snap.exists()) {
         const data = snap.data();
-        
+
         // --- NEW: If Host leaves, destroy room ---
         if (data.hostId === user.uid) {
-            await deleteDoc(roomRef);
+          await deleteDoc(roomRef);
         } else {
-            // Normal player leaving
-            const newPlayers = data.players.filter((p) => p.id !== user.uid);
-            await updateDoc(roomRef, {
-                players: newPlayers,
-            });
+          // Normal player leaving
+          const newPlayers = data.players.filter((p) => p.id !== user.uid);
+          await updateDoc(roomRef, {
+            players: newPlayers,
+          });
         }
       }
     } catch (e) {
       console.error("Error leaving room:", e);
     }
-    
+
     // CLEAR SESSION
     localStorage.removeItem("emperor_room_id");
     localStorage.removeItem("emperor_player_name");
@@ -973,9 +979,9 @@ export default function EmperorGame() {
     // Reset Kings to Neutral
     const resetKings = { ...gameState.kings };
     Object.keys(resetKings).forEach((k) => {
-        resetKings[k].redItems = [];
-        resetKings[k].blueItems = [];
-        resetKings[k].owner = null;
+      resetKings[k].redItems = [];
+      resetKings[k].blueItems = [];
+      resetKings[k].owner = null;
     });
 
     await updateDoc(
@@ -1544,21 +1550,21 @@ export default function EmperorGame() {
                   {p.name}
                 </span>
                 <div className="flex items-center gap-2">
-                    {p.id === user.uid && (
+                  {p.id === user.uid && (
                     <span className="text-xs bg-gray-700 px-2 py-1 rounded">
-                        You
+                      You
                     </span>
-                    )}
-                    {/* --- NEW: KICK BUTTON --- */}
-                    {isHost && p.id !== user.uid && (
-                        <button 
-                            onClick={() => kickPlayer(p.id)}
-                            className="p-2 hover:bg-red-900/50 rounded text-red-400"
-                            title="Kick Player"
-                        >
-                            <Trash2 size={16} />
-                        </button>
-                    )}
+                  )}
+                  {/* --- NEW: KICK BUTTON --- */}
+                  {isHost && p.id !== user.uid && (
+                    <button
+                      onClick={() => kickPlayer(p.id)}
+                      className="p-2 hover:bg-red-900/50 rounded text-red-400"
+                      title="Kick Player"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
@@ -1898,7 +1904,7 @@ export default function EmperorGame() {
             <div
               className={`
                 w-full justify-items-center gap-1 md:gap-3
-                grid grid-cols-4 md:grid-cols-7
+                grid grid-cols-7 md:grid-cols-7
             `}
             >
               {Object.keys(KINGS).map((kId, index) => {
