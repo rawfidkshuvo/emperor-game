@@ -473,7 +473,7 @@ const KingCard = ({ id, data, myColor }) => {
 };
 
 const LogViewer = ({ logs, onClose }) => (
-  <div className="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-4">
+  <div className="fixed top-16 right-4 w-64 max-h-60 bg-gray-900/95 border border-gray-700 rounded-xl z-[155] overflow-y-auto p-2 shadow-2xl">
     <div className="bg-gray-800 w-full max-w-md h-[70vh] rounded-xl flex flex-col border border-gray-700 shadow-2xl animate-in zoom-in-95">
       <div className="p-4 border-b border-gray-700 flex justify-between items-center bg-gray-900 rounded-t-xl">
         <h3 className="text-white font-bold text-lg flex items-center gap-2">
@@ -1740,8 +1740,12 @@ export default function EmperorGame() {
               ))}
 
             <button
-              onClick={() => setShowLogs(true)}
-              className="p-2 hover:bg-gray-800 rounded text-gray-400"
+              onClick={() => setShowLogs(!showLogs)}
+              className={`p-2 rounded-full ${
+                showLogs
+                  ? "bg-yellow-900 text-yellow-400"
+                  : "text-gray-400 hover:bg-gray-800"
+              }`}
             >
               <History size={18} />
             </button>
