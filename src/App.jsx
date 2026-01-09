@@ -223,6 +223,15 @@ const EmperorLogo = () => (
   </div>
 );
 
+const EmperorLogoBig = () => (
+  <div className="flex items-center justify-center gap-1 opacity-40 mt-auto pb-2 pt-2 relative z-10">
+    <Crown size={22} className="text-yellow-500" />
+    <span className="text-[20px] font-black tracking-widest text-yellow-500 uppercase">
+      EMPEROR
+    </span>
+  </div>
+);
+
 // UPDATED: Modal now handles "Return to Lobby" for Host
 const LeaveConfirmModal = ({
   onConfirm,
@@ -1478,7 +1487,7 @@ export default function EmperorGame() {
             onClick={() => setShowGuide(true)}
             className="w-full text-sm text-gray-400 hover:text-white flex items-center justify-center gap-2 py-2"
           >
-            <BookOpen size={16} /> How to Play
+            <BookOpen size={16} /> Imperial Decree
           </button>
         </div>
         <div className="absolute bottom-4 text-slate-600 text-xs text-center">
@@ -1504,6 +1513,7 @@ export default function EmperorGame() {
     return (
       <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-6 relative">
         <FloatingBackground />
+        <EmperorLogoBig />
 
         {showGuide && <GameGuideModal onClose={() => setShowGuide(false)} />}
         {showLeaveConfirm && (
@@ -1593,12 +1603,6 @@ export default function EmperorGame() {
                 Waiting for Host to start...
               </div>
             )}
-            <button
-              onClick={() => setShowGuide(true)}
-              className="text-sm text-gray-400 hover:text-white flex items-center justify-center gap-2"
-            >
-              <BookOpen size={16} /> Game Rules
-            </button>
           </div>
         </div>
 
