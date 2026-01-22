@@ -636,7 +636,9 @@ const GameGuideModal = ({ onClose }) => (
 export default function EmperorGame() {
   const [user, setUser] = useState(null);
   const [view, setView] = useState("menu");
-  const [playerName, setPlayerName] = useState("");
+  const [playerName, setPlayerName] = useState(
+    () => localStorage.getItem("emperor_player_name") || ""
+  );
   const [roomId, setRoomId] = useState("");
   const [roomCodeInput, setRoomCodeInput] = useState("");
   const [gameState, setGameState] = useState(null);
@@ -699,7 +701,6 @@ export default function EmperorGame() {
             setError("You were removed from the room.");
             // Clear storage
             localStorage.removeItem("emperor_room_id");
-            localStorage.removeItem("emperor_player_name");
             setLoading(false);
             return;
           }
@@ -718,7 +719,6 @@ export default function EmperorGame() {
           setView("menu");
           setError("The Kingdom has fallen (Room Closed).");
           localStorage.removeItem("emperor_room_id");
-          localStorage.removeItem("emperor_player_name");
           setLoading(false);
         }
       }
@@ -953,7 +953,6 @@ export default function EmperorGame() {
 
     // CLEAR SESSION
     localStorage.removeItem("emperor_room_id");
-    localStorage.removeItem("emperor_player_name");
 
     setRoomId("");
     setView("menu");
@@ -1634,7 +1633,6 @@ export default function EmperorGame() {
                 setGameState(null);
                 setView("menu");
                 localStorage.removeItem("emperor_room_id");
-                localStorage.removeItem("emperor_player_name");
               }}
               className="bg-yellow-600 hover:bg-yellow-500 text-black px-6 py-3 rounded font-bold w-full"
             >
