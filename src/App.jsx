@@ -215,7 +215,7 @@ const FloatingBackground = ({ isShaking }) => (
         return (
           <div
             key={i}
-            className="absolute animate-float text-white/20"
+            className="absolute animate-float text-white/60"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
