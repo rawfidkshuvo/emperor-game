@@ -201,16 +201,47 @@ const createLog = (text, type = "neutral") => ({
 
 // --- Sub-Components ---
 
-const FloatingBackground = () => (
-  <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-    <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-gray-800 via-gray-900 to-black opacity-80" />
-    <div
-      className="absolute inset-0 opacity-10"
-      style={{
-        backgroundImage:
-          'url("https://www.transparenttextures.com/patterns/black-scales.png")',
-      }}
-    ></div>
+const FloatingBackground = ({ isShaking }) => (
+  <div
+    className={`absolute inset-0 overflow-hidden pointer-events-none z-0 ${
+      isShaking ? "animate-shake bg-red-900/20" : ""
+    }`}
+  >
+    <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-yellow-900/20 via-gray-950 to-black" />
+    <div className="absolute top-0 left-0 w-full h-full opacity-10">
+      {[...Array(20)].map((_, i) => {
+        const fruitKeys = Object.keys(KINGS);
+        const Icon = KINGS[fruitKeys[i % fruitKeys.length]].icon;
+        return (
+          <div
+            key={i}
+            className="absolute animate-float text-white/20"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDuration: `${10 + Math.random() * 20}s`,
+              transform: `scale(${0.5 + Math.random()})`,
+            }}
+          >
+            <Icon size={32} />
+          </div>
+        );
+      })}
+    </div>
+    <style>{`
+      @keyframes float {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(10deg); }
+      }
+      .animate-float { animation: float infinite ease-in-out; }
+      
+      @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+        20%, 40%, 60%, 80% { transform: translateX(5px); }
+      }
+      .animate-shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+    `}</style>
   </div>
 );
 
@@ -1517,7 +1548,7 @@ export default function EmperorGame() {
   if (view === "lobby" && gameState) {
     const isHost = gameState.hostId === user.uid;
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-6 relative">
+      <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center justify-center p-6 relative">
         <FloatingBackground />
         <EmperorLogoBig />
 
@@ -1624,7 +1655,7 @@ export default function EmperorGame() {
 
     if (!opponent) {
       return (
-        <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-6 text-center">
+        <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center justify-center p-6 text-center">
           <FloatingBackground />
           <div className="bg-gray-800 p-8 rounded-xl border border-red-700 shadow-2xl relative z-10 max-w-md">
             <AlertTriangle size={64} className="text-red-500 mb-4 mx-auto" />
