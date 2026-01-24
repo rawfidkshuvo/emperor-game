@@ -207,7 +207,7 @@ const FloatingBackground = ({ isShaking }) => (
       isShaking ? "animate-shake bg-red-900/20" : ""
     }`}
   >
-    <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-yellow-900/20 via-gray-950 to-black" />
+    <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-yellow-900/20 via-gray-950 to-black" />
     <div className="absolute top-0 left-0 w-full h-full opacity-10">
       {[...Array(20)].map((_, i) => {
         const fruitKeys = Object.keys(KINGS);
@@ -270,7 +270,7 @@ const LeaveConfirmModal = ({
   isHost,
   onReturnToLobby,
 }) => (
-  <div className="fixed inset-0 bg-black/90 z-[200] flex items-center justify-center p-4 animate-in fade-in">
+  <div className="fixed inset-0 bg-black/90 z-200 flex items-center justify-center p-4 animate-in fade-in">
     <div className="bg-gray-800 rounded-xl border border-gray-700 p-6 max-w-sm w-full text-center shadow-2xl">
       <h3 className="text-xl font-bold text-white mb-2">Abandon Kingdom?</h3>
       <p className="text-gray-400 mb-6 text-sm">
@@ -331,7 +331,7 @@ const CardDisplay = ({
         ${isOpponent ? "" : "hover:border-gray-400"}
       `}
       >
-        <div className="w-full h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-700 to-gray-900 opacity-50 flex items-center justify-center">
+        <div className="w-full h-full bg-[radial-gradient(ellipse_at_center,var(--tw-gradient-stops))] from-gray-700 to-gray-900 opacity-50 flex items-center justify-center">
           <span
             className={`${
               tiny ? "text-[10px]" : "text-2xl"
@@ -446,7 +446,7 @@ const KingCard = ({ id, data, myColor }) => {
     <div className="flex flex-col items-center gap-1 w-full">
       {/* TOP ITEMS (Opponent) */}
       {/* Already had flex-wrap, ensures it grows upwards/stacked */}
-      <div className="flex flex-wrap justify-center gap-0.5 min-h-[1rem] items-end w-full content-end">
+      <div className="flex flex-wrap justify-center gap-0.5 min-h-4 items-end w-full content-end">
         {topItems.map((item, i) => (
           <CardDisplay key={i} typeId={item} tiny />
         ))}
@@ -456,7 +456,7 @@ const KingCard = ({ id, data, myColor }) => {
       <div
         className={`
         relative w-full bg-gray-800 rounded-lg md:rounded-xl border-2 md:border-4 transition-all flex flex-col items-center justify-center z-10
-        aspect-[2/3] p-1
+        aspect-2/3 p-1
         ${
           owner === "red"
             ? "border-red-600 shadow-[0_0_10px_rgba(220,38,38,0.3)]"
@@ -503,7 +503,7 @@ const KingCard = ({ id, data, myColor }) => {
 
       {/* BOTTOM ITEMS (You) */}
       {/* FIX: Added flex-wrap, justify-center, and w-full */}
-      <div className="flex flex-wrap justify-center gap-0.5 min-h-[2rem] items-start w-full">
+      <div className="flex flex-wrap justify-center gap-0.5 min-h-8 items-start w-full">
         {bottomItems.map((item, i) => (
           <CardDisplay key={i} typeId={item} tiny />
         ))}
@@ -513,7 +513,7 @@ const KingCard = ({ id, data, myColor }) => {
 };
 
 const LogViewer = ({ logs, onClose }) => (
-  <div className="fixed top-16 right-4 w-64 max-h-60 bg-gray-900/95 border border-gray-700 rounded-xl z-[155] overflow-y-auto p-2 shadow-2xl">
+  <div className="fixed top-16 right-4 w-64 max-h-60 bg-gray-900/95 border border-gray-700 rounded-xl z-155 overflow-y-auto p-2 shadow-2xl">
     <div className="bg-gray-800 w-full max-w-md h-[70vh] rounded-xl flex flex-col border border-gray-700 shadow-2xl animate-in zoom-in-95">
       <div className="p-4 border-b border-gray-700 flex justify-between items-center bg-gray-900 rounded-t-xl">
         <h3 className="text-white font-bold text-lg flex items-center gap-2">
@@ -552,7 +552,7 @@ const LogViewer = ({ logs, onClose }) => (
 );
 
 const GameGuideModal = ({ onClose }) => (
-  <div className="fixed inset-0 bg-black/95 z-[100] flex items-center justify-center p-0 md:p-4">
+  <div className="fixed inset-0 bg-black/95 z-100 flex items-center justify-center p-0 md:p-4">
     <div className="bg-gray-900 md:rounded-2xl w-full max-w-4xl h-full md:h-auto md:max-h-[90vh] overflow-hidden border-none md:border border-yellow-700 shadow-2xl flex flex-col">
       <div className="p-4 md:p-6 border-b border-gray-800 flex justify-between items-center bg-gray-950">
         <div>
@@ -1477,7 +1477,7 @@ export default function EmperorGame() {
             size={64}
             className="text-yellow-500 mx-auto mb-4 animate-bounce drop-shadow-[0_0_15px_rgba(234,179,8,0.5)]"
           />
-          <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-yellow-300 to-yellow-600 font-serif tracking-widest drop-shadow-md">
+          <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-linear-to-b from-yellow-300 to-yellow-600 font-serif tracking-widest drop-shadow-md">
             EMPEROR
           </h1>
           <p className="text-gray-400 tracking-[0.3em] uppercase mt-2">
@@ -1500,7 +1500,7 @@ export default function EmperorGame() {
           <button
             onClick={createRoom}
             disabled={loading}
-            className="w-full bg-gradient-to-r from-yellow-700 to-yellow-600 hover:from-yellow-600 hover:to-yellow-500 p-4 rounded font-bold mb-4 flex items-center justify-center gap-2 border border-yellow-500/30 shadow-[0_0_15px_rgba(234,179,8,0.2)] transition-all"
+            className="w-full bg-linear-to-r from-yellow-700 to-yellow-600 hover:from-yellow-600 hover:to-yellow-500 p-4 rounded font-bold mb-4 flex items-center justify-center gap-2 border border-yellow-500/30 shadow-[0_0_15px_rgba(234,179,8,0.2)] transition-all"
           >
             <Crown size={20} /> Establish Kingdom
           </button>
