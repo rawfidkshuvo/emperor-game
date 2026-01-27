@@ -1055,22 +1055,52 @@ export default function EmperorGame() {
   const startRound = async (keepKings = false) => {
     if (gameState.hostId !== user.uid) return;
 
+    // 1. GENERATE & SHUFFLE DECK
     let deck = [];
     Object.values(KINGS).forEach((k) => {
       for (let i = 0; i < k.val; i++) deck.push(k.id);
     });
     deck = shuffle(deck);
-    deck.pop();
+    deck.pop(); // Remove one card from the game (standard rule for this type of game)
 
-    const p1Hand = [];
-    const p2Hand = [];
-    for (let i = 0; i < 7; i++) {
-      if (deck.length) p1Hand.push(deck.pop());
-    }
-    for (let i = 0; i < 6; i++) {
-      if (deck.length) p2Hand.push(deck.pop());
+    // 2. DETERMINE STARTER
+    let nextStarterId;
+    if (!keepKings) {
+      // New Game: Random Start
+      const randomIdx = Math.floor(Math.random() * gameState.players.length);
+      nextStarterId = gameState.players[randomIdx].id;
+    } else {
+      // Next Round: Switch Starter
+      const previousStarterId = gameState.roundStarterId;
+      const otherPlayer = gameState.players.find((p) => p.id !== previousStarterId);
+      nextStarterId = otherPlayer ? otherPlayer.id : gameState.players[0].id;
     }
 
+    // 3. DEAL 6 CARDS TO EACH PLAYER
+    // We map over the players to create their new objects and hands
+    const newPlayers = gameState.players.map((p) => {
+      const hand = [];
+      for (let i = 0; i < 6; i++) {
+        if (deck.length > 0) hand.push(deck.pop());
+      }
+      return {
+        ...p,
+        hand, // Everyone starts with 6
+        tokens: { SECRET: false, SABOTAGE: false, GIFT: false, TRADE: false },
+        faceDownCards: [],
+        sabotagedCards: [],
+        ready: false,
+      };
+    });
+
+    // 4. STARTER DRAWS 1 CARD (Turn Start Action)
+    // Find the starter in our newPlayers array and give them the top card
+    const starterIdx = newPlayers.findIndex((p) => p.id === nextStarterId);
+    if (starterIdx !== -1 && deck.length > 0) {
+      newPlayers[starterIdx].hand.push(deck.pop());
+    }
+
+    // 5. RESET KINGS (If new game)
     const newKings = { ...gameState.kings };
     Object.keys(newKings).forEach((k) => {
       newKings[k].redItems = [];
@@ -1078,44 +1108,16 @@ export default function EmperorGame() {
       if (!keepKings) newKings[k].owner = null;
     });
 
-    const newPlayers = gameState.players.map((p) => ({
-      ...p,
-      hand: p.color === "red" ? p1Hand : p2Hand,
-      tokens: { SECRET: false, SABOTAGE: false, GIFT: false, TRADE: false },
-      faceDownCards: [],
-      sabotagedCards: [], // Reset sabotaged pile
-      ready: false,
-    }));
-
-    // --- NEW LOGIC STARTS HERE ---
-    let nextStarterId;
-
-    if (!keepKings) {
-      // CASE 1: New Game -> Pick Random Player
-      const randomIdx = Math.floor(Math.random() * gameState.players.length);
-      nextStarterId = gameState.players[randomIdx].id;
-    } else {
-      // CASE 2: Next Round -> Switch Player
-      // Retrieve who started the PREVIOUS round
-      const previousStarterId = gameState.roundStarterId;
-      
-      // Find the player who did NOT start the last round
-      const otherPlayer = gameState.players.find(p => p.id !== previousStarterId);
-      
-      // If found, they start. Fallback to player 0 if data is missing.
-      nextStarterId = otherPlayer ? otherPlayer.id : gameState.players[0].id;
-    }
-    // --- NEW LOGIC ENDS HERE ---
-
+    // 6. UPDATE DATABASE
+    const starterName = newPlayers[starterIdx].name;
     const updateData = {
       status: "playing",
       kings: newKings,
       deck,
       players: newPlayers,
       round: keepKings ? gameState.round + 1 : 1,
-      // Apply the calculated IDs
-      turnPlayerId: nextStarterId, 
-      roundStarterId: nextStarterId, // Store this to reference in the next round
+      turnPlayerId: nextStarterId,
+      roundStarterId: nextStarterId,
       phase: "turn",
       pendingInteraction: null,
       winnerId: null,
@@ -1125,19 +1127,16 @@ export default function EmperorGame() {
     };
 
     if (keepKings) {
-      // Get the name of the new starter for the log
-      const starterName = gameState.players.find(p => p.id === nextStarterId)?.name || "Player";
       updateData.logs = arrayUnion(
         createLog(
-          `⚔️ Round ${gameState.round + 1} Begins! Red starts with 7 cards.`,
+          `⚔️ Round ${gameState.round + 1} Begins! ${starterName} draws and starts.`,
           "info"
         )
       );
     } else {
-      const starterName = gameState.players.find(p => p.id === nextStarterId)?.name || "Player";
       updateData.logs = [
         createLog(
-          `⚔️ New Game Started! Round 1 Begins. ${starterName} goes first.`,
+          `⚔️ New Game! ${starterName} draws 1 card and starts.`,
           "info"
         ),
       ];
