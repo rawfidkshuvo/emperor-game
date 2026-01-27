@@ -882,6 +882,7 @@ export default function EmperorGame() {
         deck: [],
         round: 1,
         turnPlayerId: null,
+        roundStarterId: null, // <--- Add this line
         phase: "lobby",
         pendingInteraction: null,
         logs: [],
@@ -1086,13 +1087,35 @@ export default function EmperorGame() {
       ready: false,
     }));
 
+    // --- NEW LOGIC STARTS HERE ---
+    let nextStarterId;
+
+    if (!keepKings) {
+      // CASE 1: New Game -> Pick Random Player
+      const randomIdx = Math.floor(Math.random() * gameState.players.length);
+      nextStarterId = gameState.players[randomIdx].id;
+    } else {
+      // CASE 2: Next Round -> Switch Player
+      // Retrieve who started the PREVIOUS round
+      const previousStarterId = gameState.roundStarterId;
+      
+      // Find the player who did NOT start the last round
+      const otherPlayer = gameState.players.find(p => p.id !== previousStarterId);
+      
+      // If found, they start. Fallback to player 0 if data is missing.
+      nextStarterId = otherPlayer ? otherPlayer.id : gameState.players[0].id;
+    }
+    // --- NEW LOGIC ENDS HERE ---
+
     const updateData = {
       status: "playing",
       kings: newKings,
       deck,
       players: newPlayers,
       round: keepKings ? gameState.round + 1 : 1,
-      turnPlayerId: gameState.players[0].id,
+      // Apply the calculated IDs
+      turnPlayerId: nextStarterId, 
+      roundStarterId: nextStarterId, // Store this to reference in the next round
       phase: "turn",
       pendingInteraction: null,
       winnerId: null,
@@ -1102,6 +1125,8 @@ export default function EmperorGame() {
     };
 
     if (keepKings) {
+      // Get the name of the new starter for the log
+      const starterName = gameState.players.find(p => p.id === nextStarterId)?.name || "Player";
       updateData.logs = arrayUnion(
         createLog(
           `⚔️ Round ${gameState.round + 1} Begins! Red starts with 7 cards.`,
@@ -1109,9 +1134,10 @@ export default function EmperorGame() {
         )
       );
     } else {
+      const starterName = gameState.players.find(p => p.id === nextStarterId)?.name || "Player";
       updateData.logs = [
         createLog(
-          `⚔️ New Game Started! Round 1 Begins. Red starts with 7 cards.`,
+          `⚔️ New Game Started! Round 1 Begins. ${starterName} goes first.`,
           "info"
         ),
       ];
