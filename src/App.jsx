@@ -51,12 +51,12 @@ import {
 
 // --- Firebase Config & Init ---
 const firebaseConfig = {
-  apiKey: "AIzaSyBjIjK53vVJW1y5RaqEFGSFp0ECVDBEe1o",
-  authDomain: "game-hub-ff8aa.firebaseapp.com",
-  projectId: "game-hub-ff8aa",
-  storageBucket: "game-hub-ff8aa.firebasestorage.app",
-  messagingSenderId: "586559578902",
-  appId: "1:586559578902:web:2c9029761ef876856aa637",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -739,6 +739,7 @@ export default function EmperorGame() {
             setError("You were removed from the room.");
             // Clear storage
             localStorage.removeItem("emperor_room_id");
+            localStorage.removeItem("emperor_player_name");
             setLoading(false);
             return;
           }
@@ -757,6 +758,7 @@ export default function EmperorGame() {
           setView("menu");
           setError("The Kingdom has fallen (Room Closed).");
           localStorage.removeItem("emperor_room_id");
+          localStorage.removeItem("emperor_player_name");
           setLoading(false);
         }
       }
@@ -992,6 +994,7 @@ export default function EmperorGame() {
 
     // CLEAR SESSION
     localStorage.removeItem("emperor_room_id");
+    localStorage.removeItem("emperor_player_name");
 
     setRoomId("");
     setView("menu");
@@ -1696,6 +1699,7 @@ export default function EmperorGame() {
                 setGameState(null);
                 setView("menu");
                 localStorage.removeItem("emperor_room_id");
+                localStorage.removeItem("emperor_player_name");
               }}
               className="bg-yellow-600 hover:bg-yellow-500 text-black px-6 py-3 rounded font-bold w-full"
             >
