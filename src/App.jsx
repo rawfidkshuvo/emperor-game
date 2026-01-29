@@ -47,6 +47,7 @@ import {
   Hammer,
   Sparkles,
   Home, // Added Home Icon
+  Copy,
 } from "lucide-react";
 
 // --- Firebase Config & Init ---
@@ -56,7 +57,7 @@ const firebaseConfig = {
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -324,8 +325,8 @@ const CardDisplay = ({
           tiny
             ? "w-6 h-8 rounded-sm"
             : small
-            ? "w-10 h-14 rounded"
-            : "w-16 h-24 md:w-20 md:h-32 rounded"
+              ? "w-10 h-14 rounded"
+              : "w-16 h-24 md:w-20 md:h-32 rounded"
         } 
         bg-gray-800 border-2 border-gray-600 flex items-center justify-center shadow-lg transition-transform
         ${isOpponent ? "" : "hover:border-gray-400"}
@@ -461,8 +462,8 @@ const KingCard = ({ id, data, myColor }) => {
           owner === "red"
             ? "border-red-600 shadow-[0_0_10px_rgba(220,38,38,0.3)]"
             : owner === "blue"
-            ? "border-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.3)]"
-            : "border-gray-600"
+              ? "border-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.3)]"
+              : "border-gray-600"
         }
       `}
       >
@@ -534,10 +535,10 @@ const LogViewer = ({ logs, onClose }) => (
               log.type === "danger"
                 ? "bg-red-900/20 border-red-500 text-red-200"
                 : log.type === "blue"
-                ? "bg-blue-900/20 border-blue-500 text-blue-200"
-                : log.type === "success"
-                ? "bg-green-900/20 border-green-500 text-green-200"
-                : "bg-gray-700/30 border-gray-500 text-gray-300"
+                  ? "bg-blue-900/20 border-blue-500 text-blue-200"
+                  : log.type === "success"
+                    ? "bg-green-900/20 border-green-500 text-green-200"
+                    : "bg-gray-700/30 border-gray-500 text-gray-300"
             }`}
           >
             {(log.type === "danger" || log.type === "blue") && (
@@ -667,7 +668,7 @@ const GameGuideModal = ({ onClose }) => (
 export default function EmperorGame() {
   const [user, setUser] = useState(null);
   const [view, setView] = useState("menu");
-  
+
   const [roomId, setRoomId] = useState("");
   const [roomCodeInput, setRoomCodeInput] = useState("");
   const [gameState, setGameState] = useState(null);
@@ -690,7 +691,7 @@ export default function EmperorGame() {
 
   //read and fill global name
   const [playerName, setPlayerName] = useState(
-    () => localStorage.getItem("gameHub_playerName") || ""
+    () => localStorage.getItem("gameHub_playerName") || "",
   );
   //set global name for all game
   useEffect(() => {
@@ -761,7 +762,7 @@ export default function EmperorGame() {
           localStorage.removeItem("emperor_player_name");
           setLoading(false);
         }
-      }
+      },
     );
     return () => unsub();
   }, [roomId, user]);
@@ -892,7 +893,7 @@ export default function EmperorGame() {
         roundReveal: null,
         readyForNextRound: {},
         winReason: null,
-      }
+      },
     );
     // SAVE SESSION
     localStorage.setItem("emperor_room_id", newId);
@@ -915,7 +916,7 @@ export default function EmperorGame() {
       "public",
       "data",
       "rooms",
-      roomCodeInput
+      roomCodeInput,
     );
     const snap = await getDoc(ref);
     if (!snap.exists()) {
@@ -970,7 +971,7 @@ export default function EmperorGame() {
         "public",
         "data",
         "rooms",
-        roomId
+        roomId,
       );
       const snap = await getDoc(roomRef);
 
@@ -1008,8 +1009,23 @@ export default function EmperorGame() {
     const newPlayers = gameState.players.filter((p) => p.id !== targetId);
     await updateDoc(
       doc(db, "artifacts", APP_ID, "public", "data", "rooms", roomId),
-      { players: newPlayers }
+      { players: newPlayers },
     );
+  };
+
+  const copyToClipboard = () => {
+    try {
+      navigator.clipboard.writeText(roomId);
+      triggerFeedback("neutral", "COPIED!", "", CheckCircle);
+    } catch (e) {
+      const el = document.createElement("textarea");
+      el.value = roomId;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand("copy");
+      document.body.removeChild(el);
+      triggerFeedback("neutral", "COPIED!", "", CheckCircle);
+    }
   };
 
   // --- NEW: Return to Lobby Function ---
@@ -1050,7 +1066,7 @@ export default function EmperorGame() {
         roundReveal: null,
         readyForNextRound: {},
         winReason: null,
-      }
+      },
     );
     setShowLeaveConfirm(false);
   };
@@ -1075,7 +1091,9 @@ export default function EmperorGame() {
     } else {
       // Next Round: Switch Starter
       const previousStarterId = gameState.roundStarterId;
-      const otherPlayer = gameState.players.find((p) => p.id !== previousStarterId);
+      const otherPlayer = gameState.players.find(
+        (p) => p.id !== previousStarterId,
+      );
       nextStarterId = otherPlayer ? otherPlayer.id : gameState.players[0].id;
     }
 
@@ -1133,21 +1151,21 @@ export default function EmperorGame() {
       updateData.logs = arrayUnion(
         createLog(
           `⚔️ Round ${gameState.round + 1} Begins! ${starterName} draws and starts.`,
-          "info"
-        )
+          "info",
+        ),
       );
     } else {
       updateData.logs = [
         createLog(
           `⚔️ New Game! ${starterName} draws 1 card and starts.`,
-          "info"
+          "info",
         ),
       ];
     }
 
     await updateDoc(
       doc(db, "artifacts", APP_ID, "public", "data", "rooms", roomId),
-      updateData
+      updateData,
     );
     setShowSecretReveal(false);
     setShowRoundSummary(false);
@@ -1161,7 +1179,7 @@ export default function EmperorGame() {
       doc(db, "artifacts", APP_ID, "public", "data", "rooms", roomId),
       {
         [`readyForNextRound.${user.uid}`]: !isReady,
-      }
+      },
     );
   };
 
@@ -1173,10 +1191,10 @@ export default function EmperorGame() {
     newDeck,
     logMsg,
     nextPhase = "turn",
-    interaction = null
+    interaction = null,
   ) => {
     const allTokensUsed = newPlayers.every((p) =>
-      Object.values(p.tokens).every((t) => t === true)
+      Object.values(p.tokens).every((t) => t === true),
     );
 
     if (allTokensUsed && !interaction) {
@@ -1192,7 +1210,7 @@ export default function EmperorGame() {
       if (newDeck.length > 0) {
         const drawn = newDeck.pop();
         const nextPlayerIdx = newPlayers.findIndex(
-          (p) => p.id === nextPlayerId
+          (p) => p.id === nextPlayerId,
         );
         newPlayers[nextPlayerIdx].hand.push(drawn);
       }
@@ -1208,7 +1226,7 @@ export default function EmperorGame() {
         phase: nextPhase,
         pendingInteraction: interaction,
         logs: arrayUnion(createLog(logMsg, "neutral")),
-      }
+      },
     );
 
     setSelectedToken(null);
@@ -1273,7 +1291,7 @@ export default function EmperorGame() {
         newPlayers,
         newKings,
         newDeck,
-        `${me.name} placed a Secret Plan.`
+        `${me.name} placed a Secret Plan.`,
       );
     } else if (selectedToken === "SABOTAGE") {
       removeCardsFromHand(cardsToPlay);
@@ -1284,7 +1302,7 @@ export default function EmperorGame() {
         newPlayers,
         newKings,
         newDeck,
-        `${me.name} Sabotaged (Discarded 2 cards).`
+        `${me.name} Sabotaged (Discarded 2 cards).`,
       );
     } else if (selectedToken === "GIFT") {
       removeCardsFromHand(cardsToPlay);
@@ -1300,7 +1318,7 @@ export default function EmperorGame() {
         newDeck,
         `${me.name} offers a Gift (Choose 1 of 3).`,
         "interaction",
-        interaction
+        interaction,
       );
     } else if (selectedToken === "TRADE") {
       if (interactiveMode !== "TRADE_SPLIT") {
@@ -1318,7 +1336,7 @@ export default function EmperorGame() {
       const p1Cards = pile1Indices.map((hIdx) => handView[hIdx]);
 
       const pile2Indices = selectedCards.filter(
-        (hIdx) => !pile1Indices.includes(hIdx)
+        (hIdx) => !pile1Indices.includes(hIdx),
       );
       const p2Cards = pile2Indices.map((hIdx) => handView[hIdx]);
 
@@ -1337,7 +1355,7 @@ export default function EmperorGame() {
         newDeck,
         `${me.name} proposes a Trade (Pick a pile).`,
         "interaction",
-        interaction
+        interaction,
       );
     }
   };
@@ -1378,7 +1396,7 @@ export default function EmperorGame() {
     let nextTurnPlayerId = newPlayers.find((p) => p.id !== turnOwner).id;
 
     const allTokensUsed = newPlayers.every((p) =>
-      Object.values(p.tokens).every((t) => t === true)
+      Object.values(p.tokens).every((t) => t === true),
     );
 
     if (allTokensUsed) {
@@ -1387,7 +1405,7 @@ export default function EmperorGame() {
       if (newDeck.length > 0) {
         const drawn = newDeck.pop();
         const nextPlayerIdx = newPlayers.findIndex(
-          (p) => p.id === nextTurnPlayerId
+          (p) => p.id === nextTurnPlayerId,
         );
         newPlayers[nextPlayerIdx].hand.push(drawn);
       }
@@ -1402,7 +1420,7 @@ export default function EmperorGame() {
           phase: "turn",
           turnPlayerId: nextTurnPlayerId,
           logs: arrayUnion(createLog(logMsg, "success")),
-        }
+        },
       );
     }
   };
@@ -1436,13 +1454,13 @@ export default function EmperorGame() {
       if (redCount > blueCount) {
         if (k.owner !== "red")
           logs.push(
-            createLog(`${redPlayer.name} conquered ${k.name}!`, "danger")
+            createLog(`${redPlayer.name} conquered ${k.name}!`, "danger"),
           );
         k.owner = "red";
       } else if (blueCount > redCount) {
         if (k.owner !== "blue")
           logs.push(
-            createLog(`${bluePlayer.name} conquered ${k.name}!`, "blue")
+            createLog(`${bluePlayer.name} conquered ${k.name}!`, "blue"),
           );
         k.owner = "blue";
       }
@@ -1489,7 +1507,7 @@ export default function EmperorGame() {
         phase: "resolution",
         readyForNextRound: {},
         logs: arrayUnion(...logs),
-      }
+      },
     );
   };
 
@@ -1591,9 +1609,20 @@ export default function EmperorGame() {
 
         <div className="z-10 w-full max-w-lg bg-gray-800/90 p-8 rounded-2xl border border-gray-700 shadow-2xl mb-4">
           <div className="flex justify-between items-center mb-8 border-b border-gray-700 pb-4">
-            <h2 className="text-2xl font-serif text-yellow-500">
-              Throne Room: {roomId}
-            </h2>
+            {/* Grouping Title and Copy Button together on the left */}
+            <div className="flex items-center gap-2">
+              <h2 className="text-2xl font-serif text-yellow-500">
+                Throne Room:{" "}
+                <span className="text-white font-mono">{roomId}</span>
+              </h2>
+              <button
+                onClick={copyToClipboard}
+                className="p-2 hover:bg-white/10 rounded-full transition-colors text-gray-400 hover:text-white"
+                title="Copy Room ID"
+              >
+                <Copy size={16} />
+              </button>
+            </div>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 text-sm text-gray-400">
                 <User size={16} /> {gameState.players.length}/2
@@ -2007,10 +2036,10 @@ export default function EmperorGame() {
                       l.type === "danger"
                         ? "text-red-400"
                         : l.type === "blue"
-                        ? "text-blue-400"
-                        : l.type === "success"
-                        ? "text-green-400"
-                        : "text-gray-300"
+                          ? "text-blue-400"
+                          : l.type === "success"
+                            ? "text-green-400"
+                            : "text-gray-300"
                     }`}
                   >
                     {(l.type === "danger" || l.type === "blue") && (
@@ -2219,7 +2248,7 @@ export default function EmperorGame() {
               <div className="flex flex-col md:flex-row justify-around gap-8 mb-8">
                 {Object.keys(gameState.roundReveal).map((pid) => {
                   const pName = gameState.players.find(
-                    (p) => p.id === pid
+                    (p) => p.id === pid,
                   )?.name;
                   const cards = gameState.roundReveal[pid];
                   return (
@@ -2292,7 +2321,7 @@ export default function EmperorGame() {
                       <div className="text-2xl">
                         {
                           Object.values(gameState.kings).filter(
-                            (k) => k.owner === "red"
+                            (k) => k.owner === "red",
                           ).length
                         }
                       </div>
@@ -2304,7 +2333,7 @@ export default function EmperorGame() {
                       <div className="text-2xl">
                         {
                           Object.values(gameState.kings).filter(
-                            (k) => k.owner === "blue"
+                            (k) => k.owner === "blue",
                           ).length
                         }
                       </div>
