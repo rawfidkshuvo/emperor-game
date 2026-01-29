@@ -846,64 +846,69 @@ export default function EmperorGame() {
   const createRoom = async () => {
     if (!playerName) return setError("Name required");
     setLoading(true);
-    const newId = Math.random().toString(36).substring(2, 7).toUpperCase();
+    // NEW: 5-digit code excluding 0 and O
+    const chars = "123456789ABCDEFGHIJKLMNPQRSTUVWXYZ";
+  let newRoomId = "";
+  for (let i = 0; i < 6; i++) {
+    newRoomId += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
 
-    const initialKings = {};
-    Object.values(KINGS).forEach((k) => {
-      const { icon, ...serializableKing } = k;
-      initialKings[k.id] = {
-        ...serializableKing,
-        owner: null,
-        redItems: [],
-        blueItems: [],
-      };
-    });
+      const initialKings = {};
+      Object.values(KINGS).forEach((k) => {
+        const { icon, ...serializableKing } = k;
+        initialKings[k.id] = {
+          ...serializableKing,
+          owner: null,
+          redItems: [],
+          blueItems: [],
+        };
+      });
 
-    await setDoc(
-      doc(db, "artifacts", APP_ID, "public", "data", "rooms", newId),
-      {
-        roomId: newId,
-        hostId: user.uid,
-        status: "lobby",
-        players: [
-          {
-            id: user.uid,
-            name: playerName,
-            color: "red",
-            hand: [],
-            tokens: {
-              SECRET: false,
-              SABOTAGE: false,
-              GIFT: false,
-              TRADE: false,
+      await setDoc(
+        doc(db, "artifacts", APP_ID, "public", "data", "rooms", newRoomId),
+        {
+          roomId: newRoomId,
+          hostId: user.uid,
+          status: "lobby",
+          players: [
+            {
+              id: user.uid,
+              name: playerName,
+              color: "red",
+              hand: [],
+              tokens: {
+                SECRET: false,
+                SABOTAGE: false,
+                GIFT: false,
+                TRADE: false,
+              },
+              faceDownCards: [],
+              sabotagedCards: [],
+              ready: false,
             },
-            faceDownCards: [],
-            sabotagedCards: [],
-            ready: false,
-          },
-        ],
-        kings: initialKings,
-        deck: [],
-        round: 1,
-        turnPlayerId: null,
-        roundStarterId: null, // <--- Add this line
-        phase: "lobby",
-        pendingInteraction: null,
-        logs: [],
-        winnerId: null,
-        roundReveal: null,
-        readyForNextRound: {},
-        winReason: null,
-      },
-    );
-    // SAVE SESSION
-    localStorage.setItem("emperor_room_id", newId);
-    localStorage.setItem("emperor_player_name", playerName);
+          ],
+          kings: initialKings,
+          deck: [],
+          round: 1,
+          turnPlayerId: null,
+          roundStarterId: null, // <--- Add this line
+          phase: "lobby",
+          pendingInteraction: null,
+          logs: [],
+          winnerId: null,
+          roundReveal: null,
+          readyForNextRound: {},
+          winReason: null,
+        },
+      );
+      // SAVE SESSION
+      localStorage.setItem("emperor_room_id", newRoomId);
+      localStorage.setItem("emperor_player_name", playerName);
 
-    setRoomId(newId);
-    setRoomCodeInput(newId);
-    setView("lobby");
-    setLoading(false);
+      setRoomId(newRoomId);
+      setRoomCodeInput(newRoomId);
+      setView("lobby");
+      setLoading(false);
   };
 
   const joinRoom = async () => {
