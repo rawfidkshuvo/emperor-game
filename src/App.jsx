@@ -1656,7 +1656,7 @@ export default function EmperorGame() {
 
                   {/* 3. The Copied Popup */}
                   {isCopied && (
-                    <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 bg-green-500 text-black text-xs font-bold px-2 py-1 rounded shadow-lg animate-fade-in-up whitespace-nowrap">
+                    <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 bg-yellow-500 text-black text-xs font-bold px-2 py-1 rounded shadow-lg animate-fade-in-up whitespace-nowrap">
                       Copied!
                     </div>
                   )}
